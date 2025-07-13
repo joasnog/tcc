@@ -3,6 +3,8 @@ import 'package:estruturas_de_dados/widgets/stack_structure_widget.dart';
 import 'package:flutter/material.dart';
 
 import '../data_estructures/data_structure.dart';
+import '../data_estructures/queue.dart';
+import '../widgets/queue_structure_widget.dart';
 // import '../data_estructures/queue.dart';
 // import '../widgets/queue_structure_widget.dart';
 
@@ -13,9 +15,8 @@ class SimulationPage extends StatelessWidget {
 
   DataStructure? _resolveStructure() {
     switch (type) {
-      case 'pilha':
-        return StackEstructure();
-      // case 'queue': return QueueStructure();
+      case 'pilha': return StackStructure();
+      case 'fila': return QueueStructure();
       default:
         return null;
     }
@@ -23,12 +24,9 @@ class SimulationPage extends StatelessWidget {
 
   Widget? _buildWidgetForStructure(DataStructure structure) {
     switch (structure.name.toLowerCase()) {
-      case 'pilha':
-        return StackStructureWidget(dataStructure: structure);
-      // case 'fila':
-      //   return QueueStructureWidget(dataStructure: structure);
-      default:
-        return const Center(child: Text('Visualização não implementada'));
+      case 'pilha': return StackStructureWidget(dataStructure: structure);
+      case 'fila': return QueueStructureWidget(dataStructure: structure);
+      default: return const Center(child: Text('Visualização não implementada'));
     }
   }
 

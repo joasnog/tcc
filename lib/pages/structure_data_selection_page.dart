@@ -1,5 +1,3 @@
-import 'package:estruturas_de_dados/data_estructures/data_structure.dart';
-import 'package:estruturas_de_dados/data_estructures/stack.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -11,29 +9,23 @@ class StructureSelectionPage extends StatelessWidget {
       name: 'Pilha',
       description: 'Estrutura LIFO (Primeiro a entrar, último a sair).',
       icon: Icons.vertical_align_top,
-      route: '/simulation',
-      dataStructure: StackEstructure(),
     ),
     _StructureData(
       name: 'Fila',
       description: 'Estrutura FIFO Primeiro a entrar, primeiro a sair).',
       icon: Icons.queue,
-      route: '/simulation',
-      dataStructure: StackEstructure(),
+
     ),
     _StructureData(
       name: 'Lista',
       description: 'Coleção de elementos encadeados ou sequenciais.',
       icon: Icons.list,
-      route: '/simulation',
-      dataStructure: StackEstructure(),
+  
     ),
     _StructureData(
       name: 'Árvore Binária',
       description: 'Estrutura hierárquica com nós ligados por ramos.',
       icon: Icons.account_tree,
-      route: '/simulation',
-      dataStructure: StackEstructure(),
     ),
   ];
   
@@ -99,14 +91,10 @@ class _StructureData {
   final String name;
   final String description;
   final IconData icon;
-  final String route;
-  final DataStructure dataStructure; 
 
   const _StructureData({
     required this.name,
     required this.description,
     required this.icon,
-    required this.route,
-    required this.dataStructure,
   });
 }

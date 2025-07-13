@@ -1,6 +1,6 @@
 import 'package:estruturas_de_dados/data_estructures/data_structure.dart';
 
-final class StackEstructure implements DataStructure {
+final class StackStructure implements DataStructure {
   @override
   String get id => 'stack';
 
