@@ -1,0 +1,4 @@
+enum TreeNodePosition {
+  left,
+  right
+}

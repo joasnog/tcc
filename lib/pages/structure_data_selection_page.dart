@@ -17,12 +17,6 @@ class StructureSelectionPage extends StatelessWidget {
 
     ),
     _StructureData(
-      name: 'Lista',
-      description: 'Coleção de elementos encadeados ou sequenciais.',
-      icon: Icons.list,
-  
-    ),
-    _StructureData(
       name: 'Árvore Binária',
       description: 'Estrutura hierárquica com nós ligados por ramos.',
       icon: Icons.account_tree,
@@ -71,7 +65,7 @@ class StructureSelectionPage extends StatelessWidget {
                     alignment: Alignment.centerRight,
                     child: ElevatedButton.icon(
                       onPressed: () {
-                        context.push('/simulation/${structure.name.toLowerCase()}');
+                        context.go('/simulation/${structure.name.toLowerCase()}');
                       },
                       icon: const Icon(Icons.play_arrow),
                       label: const Text('Ver Simulação'),

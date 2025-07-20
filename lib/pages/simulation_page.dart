@@ -1,4 +1,6 @@
+import 'package:estruturas_de_dados/data_estructures/binary_tree.dart';
 import 'package:estruturas_de_dados/data_estructures/stack.dart';
+import 'package:estruturas_de_dados/widgets/binary_tree_structure_widget.dart';
 import 'package:estruturas_de_dados/widgets/stack_structure_widget.dart';
 import 'package:flutter/material.dart';
 
@@ -17,6 +19,7 @@ class SimulationPage extends StatelessWidget {
     switch (type) {
       case 'pilha': return StackStructure();
       case 'fila': return QueueStructure();
+      case 'árvore binária': return BinaryTreeStructure();
       default:
         return null;
     }
@@ -26,6 +29,7 @@ class SimulationPage extends StatelessWidget {
     switch (structure.name.toLowerCase()) {
       case 'pilha': return StackStructureWidget(dataStructure: structure);
       case 'fila': return QueueStructureWidget(dataStructure: structure);
+      case 'árvore binária': return BinaryTreeStructureWidget(dataStructure: structure);
       default: return const Center(child: Text('Visualização não implementada'));
     }
   }

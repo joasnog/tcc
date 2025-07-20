@@ -1,5 +1,8 @@
 import 'package:estruturas_de_dados/data_estructures/data_structure.dart';
 
+import '../enums/tree_node_position.dart';
+import '../models/tree_node_model.dart';
+
 final class QueueStructure implements DataStructure {
   @override
   String get id => 'queue';
@@ -30,5 +33,9 @@ final class QueueStructure implements DataStructure {
   void clearAll() {
     _dados.clear();
   }
-
+  
+  @override
+  void addNode(int? value, {TreeNode? parent, required TreeNodePosition position}) {
+    throw UnimplementedError('Método indisponível para fila');
+  }
 }
