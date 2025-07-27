@@ -1,12 +1,12 @@
 import 'package:estruturas_de_dados/data_estructures/binary_tree.dart';
 import 'package:estruturas_de_dados/data_estructures/stack.dart';
-import 'package:estruturas_de_dados/widgets/binary_tree_structure_widget.dart';
-import 'package:estruturas_de_dados/widgets/stack_structure_widget.dart';
+import 'package:estruturas_de_dados/pages/simulation/widgets/binary_tree_structure_widget.dart';
+import 'package:estruturas_de_dados/pages/simulation/widgets/stack_structure_widget.dart';
 import 'package:flutter/material.dart';
 
-import '../data_estructures/data_structure.dart';
-import '../data_estructures/queue.dart';
-import '../widgets/queue_structure_widget.dart';
+import '../../data_estructures/data_structure.dart';
+import '../../data_estructures/queue.dart';
+import 'widgets/queue_structure_widget.dart';
 // import '../data_estructures/queue.dart';
 // import '../widgets/queue_structure_widget.dart';
 
@@ -47,7 +47,8 @@ class SimulationPage extends StatelessWidget {
     final widget = _buildWidgetForStructure(structure);
 
     return Scaffold(
-      appBar: AppBar(title: Text(structure.name)),
+      backgroundColor: Colors.white,
+      appBar: AppBar(title: Text(structure.name), backgroundColor: Colors.white),
       body: widget,
     );
   }

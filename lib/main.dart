@@ -1,5 +1,5 @@
-import 'package:estruturas_de_dados/pages/home_page.dart';
-import 'package:estruturas_de_dados/pages/simulation_page.dart';
+import 'package:estruturas_de_dados/pages/home/home_page.dart';
+import 'package:estruturas_de_dados/pages/simulation/simulation_page.dart';
 import 'package:flutter/material.dart';
 import 'package:go_router/go_router.dart';
 
@@ -46,8 +46,10 @@ class MyApp extends StatelessWidget {
       routerConfig: router,
       title: 'Estruturas de Dados',
       theme: ThemeData(
-        colorScheme: ColorScheme.fromSeed(
-          seedColor: Colors.teal,
+        fontFamily: 'Inter',
+        textTheme: TextTheme(
+          bodyMedium: TextStyle(fontWeight: FontWeight.normal),
+          titleLarge: TextStyle(fontWeight: FontWeight.bold),
         ),
       ),
     );
