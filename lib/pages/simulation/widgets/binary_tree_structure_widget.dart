@@ -2,6 +2,7 @@ import 'package:estruturas_de_dados/pages/simulation/widgets/primary_button.dart
 import 'package:flutter/material.dart';
 import '../../../data_estructures/binary_tree.dart';
 import '../../../data_estructures/data_structure.dart';
+import '../../../models/node_position_model.dart';
 import '../../../models/tree_node_model.dart';
 import '../../../enums/tree_node_position.dart';
 
@@ -29,6 +30,61 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
     super.dispose();
   }
 
+  int _autoValueCounter = 1;
+
+  void _fillTreeAutomatically(TreeNode node, int currentDepth, int maxDepth) {
+    if (currentDepth >= maxDepth) return;
+
+    // Adiciona filho à esquerda, se não houver
+    if (node.left == null) {
+      final newValue = _autoValueCounter++;
+      final newNode = TreeNode(value: newValue);
+      node.left = newNode;
+    }
+
+    // Adiciona filho à direita, se não houver
+    if (node.right == null) {
+      final newValue = _autoValueCounter++;
+      final newNode = TreeNode(value: newValue);
+      node.right = newNode;
+    }
+
+    // Recursão nos filhos
+    if (node.left != null) {
+      _fillTreeAutomatically(node.left!, currentDepth + 1, maxDepth);
+    }
+
+    if (node.right != null) {
+      _fillTreeAutomatically(node.right!, currentDepth + 1, maxDepth);
+    }
+  }
+
+  Future<void> _confirmAndDeleteNode(TreeNode node) async {
+    final confirmed = await showDialog<bool>(
+      context: context,
+      builder: (context) => AlertDialog(
+        title: Text('Remover nó'),
+        content: Text('Tem certeza que deseja remover o nó ${node.value}?'),
+        actions: [
+          TextButton(
+            onPressed: () => Navigator.pop(context, false),
+            child: Text('Cancelar'),
+          ),
+          ElevatedButton(
+            onPressed: () => Navigator.pop(context, true),
+            child: Text('Remover'),
+          ),
+        ],
+      ),
+    );
+
+    if (confirmed != true) return;
+
+    setState(() {
+      tree.removeNode(node);
+    });
+  }
+  
   Future<int?> _showValueDialog() async {
     _controller.clear();
     return showDialog<int>(
@@ -71,16 +127,16 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
     ].reduce((a, b) => a > b ? a : b);
   }
 
-  List<_NodePosition> _buildNodePositions(TreeNode node, double x, double y, int level, double gapBase) {
+  List<NodePosition> _buildNodePositions(TreeNode node, double x, double y, int level, double gapBase) {
     final gapX = gapBase * (1 << (maxDepth - level));
-    List<_NodePosition> positions = [];
+    List<NodePosition> positions = [];
 
-    positions.add(_NodePosition(node: node, x: x, y: y));
+    positions.add(NodePosition(node: node, x: x, y: y));
 
     if (node.left != null) {
       positions.addAll(_buildNodePositions(node.left!, x - gapX, y + 100, level + 1, gapBase));
     } else if (level < 5) { // <-- Limite máximo para exibir botão
-      positions.add(_NodePosition(
+      positions.add(NodePosition(
         parent: node,
         x: x - gapX,
         y: y + 100,
@@ -92,7 +148,7 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
     if (node.right != null) {
       positions.addAll(_buildNodePositions(node.right!, x + gapX, y + 100, level + 1, gapBase));
     } else if (level < 5) { // <-- Mesmo aqui
-      positions.add(_NodePosition(
+      positions.add(NodePosition(
         parent: node,
         x: x + gapX,
         y: y + 100,
@@ -106,58 +162,81 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
 
   @override
   Widget build(BuildContext context) {
-    final nodes = <_NodePosition>[];
+    final nodes = <NodePosition>[];
 
     if (tree.items.isNotEmpty) {
       maxDepth = _getTreeDepth(tree.items.first);
     }
 
-
     if (tree.items.isNotEmpty) {
       nodes.addAll(_buildNodePositions(tree.items.first, 1000, 40, 1, 30));
     }
 
-    return InteractiveViewer(
-      constrained: false, // Permite que o conteúdo ultrapasse os limites
-      boundaryMargin: const EdgeInsets.all(2000), // Espaço livre para mover
-      minScale: 0.2,
-      maxScale: 2.5,
-      child: SizedBox(
-        width: 2000, // Área grande para a árvore
-        height: 2000,
-        child: Stack(
-          children: [
-            CustomPaint(
-              painter: TreePainter(nodes.where((n) => !n.isPlaceholder).toList()),
-              child: Container(),
-            ),
-            ...nodes.map((node) {
-              return Positioned(
-                left: node.x - 20,
-                top: node.y - 20,
-                child: node.isPlaceholder
-                    ? IconButton(
-                        onPressed: () => _addNode(parent: node.parent, position: node.position!),
-                        icon: Icon(Icons.add_circle, color: Colors.black),
-                      )
-                    : TreeNodeWidget(value: node.node!.value),
-              );
-            }),
+    return Scaffold(
+      backgroundColor: Colors.white,
+      floatingActionButton: FloatingActionButton(
+        tooltip: 'Preencher Árvore Automaticamente',
+        backgroundColor: Colors.black,
+        child: Icon(Icons.auto_graph, color: Colors.white),
+        onPressed: () {
+          setState(() {
+            _autoValueCounter = 1;
 
-            if (tree.items.isEmpty)
-              Center(
-                child: SizedBox(
-                  height: 60,
-                  width: 160,
-                  child: PrimaryButton(
-                    backgroundColor: Colors.black,
-                    textColor: Colors.white,
-                    onPressed: () => _addNode(parent: null, position: TreeNodePosition.left),
-                    label: '+ Adicionar nó raiz',
+            // Cria raiz se necessário
+            if (tree.root == null) {
+              tree.addRoot(_autoValueCounter++);
+            }
+
+            // Preenche a árvore
+            _fillTreeAutomatically(tree.root!, 1, 5);
+          });
+        },
+      ),
+      body: InteractiveViewer(
+        constrained: false, // Permite que o conteúdo ultrapasse os limites
+        boundaryMargin: const EdgeInsets.all(2000), // Espaço livre para mover
+        minScale: 0.2,
+        maxScale: 2.5,
+        child: SizedBox(
+          width: 2000, // Área grande para a árvore
+          height: 2000,
+          child: Stack(
+            children: [
+              CustomPaint(
+                painter: TreePainter(nodes.where((n) => !n.isPlaceholder).toList()),
+                child: Container(),
+              ),
+              ...nodes.map((node) {
+                return Positioned(
+                  left: node.x - 20,
+                  top: node.y - 20,
+                  child: node.isPlaceholder
+                      ? IconButton(
+                          onPressed: () => _addNode(parent: node.parent, position: node.position!),
+                          icon: Icon(Icons.add_circle, color: Colors.black),
+                        )
+                      : GestureDetector(
+                          onLongPress: () => _confirmAndDeleteNode(node.node!),
+                          child: TreeNodeWidget(value: node.node!.value),
+                        ),
+                );
+              }),
+      
+              if (tree.items.isEmpty)
+                Center(
+                  child: SizedBox(
+                    height: 60,
+                    width: 160,
+                    child: PrimaryButton(
+                      backgroundColor: Colors.black,
+                      textColor: Colors.white,
+                      onPressed: () => _addNode(parent: null, position: TreeNodePosition.left),
+                      label: '+ Adicionar nó raiz',
+                    ),
                   ),
                 ),
-              ),
-          ],
+            ],
+          ),
         ),
       ),
     );
@@ -190,7 +269,7 @@ class TreeNodeWidget extends StatelessWidget {
 }
 
 class TreePainter extends CustomPainter {
-  final List<_NodePosition> nodes;
+  final List<NodePosition> nodes;
 
   TreePainter(this.nodes);
 
@@ -214,21 +293,4 @@ class TreePainter extends CustomPainter {
 
   @override
   bool shouldRepaint(covariant TreePainter oldDelegate) => true;
-}
-
-class _NodePosition {
-  final TreeNode? node;
-  final TreeNode? parent;
-  final TreeNodePosition? position;
-  final bool isPlaceholder;
-  final double x, y;
-
-  _NodePosition({
-    this.node,
-    this.parent,
-    this.position,
-    required this.x,
-    required this.y,
-    this.isPlaceholder = false,
-  });
 }
