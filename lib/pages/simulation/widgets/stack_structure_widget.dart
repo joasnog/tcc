@@ -111,6 +111,7 @@ class _StackStructureWidgetState extends State<StackStructureWidget> {
             // Lado direito: visual da pilha fixo
             SizedBox(
               width: 300,
+              height: 600,
               child: Container(
                 padding: const EdgeInsets.all(8),
                 decoration: BoxDecoration(
@@ -118,39 +119,42 @@ class _StackStructureWidgetState extends State<StackStructureWidget> {
                   borderRadius: BorderRadius.circular(8),
                   color: Colors.white,
                 ),
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.end,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: dataStructure.items.isEmpty
-                      ? [
-                          const Text(
-                            'Pilha vazia',
-                            style: TextStyle(color: Colors.grey),
-                          ),
-                        ]
-                      : dataStructure.items
-                            .map(
-                              (e) => Container(
-                                margin: const EdgeInsets.symmetric(vertical: 4),
-                                padding: const EdgeInsets.all(12),
-                                width: double.infinity,
-                                decoration: BoxDecoration(
-                                  color: Colors.grey.shade200,
-                                  border: Border.all(color: Colors.black),
-                                ),
-                                child: Text(
-                                  e.toString(),
-                                  textAlign: TextAlign.center,
-                                  style: const TextStyle(
-                                    color: Colors.black,
-                                    fontWeight: FontWeight.w500,
+                child: SingleChildScrollView(
+                  reverse: true,
+                  child: Column(
+                    mainAxisAlignment: MainAxisAlignment.end,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: dataStructure.items.isEmpty
+                        ? [
+                            const Text(
+                              'Pilha vazia',
+                              style: TextStyle(color: Colors.grey),
+                            ),
+                          ]
+                        : dataStructure.items
+                              .map(
+                                (e) => Container(
+                                  margin: const EdgeInsets.symmetric(vertical: 4),
+                                  padding: const EdgeInsets.all(12),
+                                  width: double.infinity,
+                                  decoration: BoxDecoration(
+                                    color: Colors.grey.shade200,
+                                    border: Border.all(color: Colors.black),
+                                  ),
+                                  child: Text(
+                                    e.toString(),
+                                    textAlign: TextAlign.center,
+                                    style: const TextStyle(
+                                      color: Colors.black,
+                                      fontWeight: FontWeight.w500,
+                                    ),
                                   ),
                                 ),
-                              ),
-                            )
-                            .toList()
-                            .reversed
-                            .toList(),
+                              )
+                              .toList()
+                              .reversed
+                              .toList(),
+                  ),
                 ),
               ),
             ),

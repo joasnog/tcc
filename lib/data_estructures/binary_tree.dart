@@ -102,9 +102,41 @@ final class BinaryTreeStructure implements DataStructure {
   }
 
   // Métodos futuros para percursos
-  void traversePreOrder() {}
+  List<TreeNode> traversePreOrderList() {
+    List<TreeNode> result = [];
+    void visit(TreeNode? node) {
+      if (node == null) return;
+      result.add(node);
+      visit(node.left);
+      visit(node.right);
+    }
+    visit(root);
+    return result;
+  }
 
-  void traverseInOrder() {}
-  
-  void traversePostOrder() {}
+  List<TreeNode> traverseInOrderList() {
+    List<TreeNode> result = [];
+    void visit(TreeNode? node) {
+      if (node == null) return;
+      visit(node.left);
+      result.add(node);
+      visit(node.right);
+    }
+    visit(root);
+    return result;
+  }
+
+  List<TreeNode> traversePostOrderList() {
+    List<TreeNode> result = [];
+    void visit(TreeNode? node) {
+      if (node == null) return;
+      visit(node.left);
+      visit(node.right);
+      result.add(node);
+    }
+    visit(root);
+    return result;
+  }
+
+
 }

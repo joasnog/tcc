@@ -1,21 +1,21 @@
-import 'package:estruturas_de_dados/pages/simulation/widgets/primary_button.dart';
+import 'dart:async';
 import 'package:flutter/material.dart';
+import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import '../../../data_estructures/binary_tree.dart';
 import '../../../data_estructures/data_structure.dart';
 import '../../../models/node_position_model.dart';
 import '../../../models/tree_node_model.dart';
 import '../../../enums/tree_node_position.dart';
+import '../../simulation/widgets/primary_button.dart';
 
 class BinaryTreeStructureWidget extends StatefulWidget {
   final DataStructure dataStructure;
 
-  const BinaryTreeStructureWidget({
-    super.key,
-    required this.dataStructure,
-  });
+  const BinaryTreeStructureWidget({super.key, required this.dataStructure});
 
   @override
-  State<BinaryTreeStructureWidget> createState() => _BinaryTreeStructureWidgetState();
+  State<BinaryTreeStructureWidget> createState() =>
+      _BinaryTreeStructureWidgetState();
 }
 
 class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
@@ -24,8 +24,13 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
 
   BinaryTreeStructure get tree => widget.dataStructure as BinaryTreeStructure;
 
+  List<TreeNode> _animationNodes = [];
+  int _activeNodeIndex = -1; // -1 = sem destaque
+  Timer? _animationTimer;
+
   @override
   void dispose() {
+    _animationTimer?.cancel();
     _controller.dispose();
     super.dispose();
   }
@@ -35,28 +40,22 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
   void _fillTreeAutomatically(TreeNode node, int currentDepth, int maxDepth) {
     if (currentDepth >= maxDepth) return;
 
-    // Adiciona filho à esquerda, se não houver
     if (node.left == null) {
       final newValue = _autoValueCounter++;
       final newNode = TreeNode(value: newValue);
       node.left = newNode;
     }
 
-    // Adiciona filho à direita, se não houver
     if (node.right == null) {
       final newValue = _autoValueCounter++;
       final newNode = TreeNode(value: newValue);
       node.right = newNode;
     }
 
-    // Recursão nos filhos
-    if (node.left != null) {
+    if (node.left != null)
       _fillTreeAutomatically(node.left!, currentDepth + 1, maxDepth);
-    }
-
-    if (node.right != null) {
+    if (node.right != null)
       _fillTreeAutomatically(node.right!, currentDepth + 1, maxDepth);
-    }
   }
 
   Future<void> _confirmAndDeleteNode(TreeNode node) async {
@@ -82,9 +81,10 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
 
     setState(() {
       tree.removeNode(node);
+      _stopAnimation();
     });
   }
-  
+
   Future<int?> _showValueDialog() async {
     _controller.clear();
     return showDialog<int>(
@@ -97,7 +97,10 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
           decoration: InputDecoration(labelText: 'Valor do nó'),
         ),
         actions: [
-          TextButton(onPressed: () => Navigator.pop(context), child: Text('Cancelar')),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('Cancelar'),
+          ),
           ElevatedButton(
             onPressed: () {
               final value = int.tryParse(_controller.text);
@@ -116,49 +119,110 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
 
     setState(() {
       tree.addNode(value, parent: parent, position: position);
+      _stopAnimation();
     });
   }
 
   int _getTreeDepth(TreeNode? node) {
     if (node == null) return 0;
-    return 1 + [
-      _getTreeDepth(node.left),
-      _getTreeDepth(node.right),
-    ].reduce((a, b) => a > b ? a : b);
+    return 1 +
+        [
+          _getTreeDepth(node.left),
+          _getTreeDepth(node.right),
+        ].reduce((a, b) => a > b ? a : b);
   }
 
-  List<NodePosition> _buildNodePositions(TreeNode node, double x, double y, int level, double gapBase) {
+  List<NodePosition> _buildNodePositions(
+    TreeNode node,
+    double x,
+    double y,
+    int level,
+    double gapBase,
+  ) {
     final gapX = gapBase * (1 << (maxDepth - level));
     List<NodePosition> positions = [];
 
     positions.add(NodePosition(node: node, x: x, y: y));
 
     if (node.left != null) {
-      positions.addAll(_buildNodePositions(node.left!, x - gapX, y + 100, level + 1, gapBase));
-    } else if (level < 5) { // <-- Limite máximo para exibir botão
-      positions.add(NodePosition(
-        parent: node,
-        x: x - gapX,
-        y: y + 100,
-        isPlaceholder: true,
-        position: TreeNodePosition.left,
-      ));
+      positions.addAll(
+        _buildNodePositions(node.left!, x - gapX, y + 100, level + 1, gapBase),
+      );
+    } else if (level < 5) {
+      positions.add(
+        NodePosition(
+          parent: node,
+          x: x - gapX,
+          y: y + 100,
+          isPlaceholder: true,
+          position: TreeNodePosition.left,
+        ),
+      );
     }
 
     if (node.right != null) {
-      positions.addAll(_buildNodePositions(node.right!, x + gapX, y + 100, level + 1, gapBase));
-    } else if (level < 5) { // <-- Mesmo aqui
-      positions.add(NodePosition(
-        parent: node,
-        x: x + gapX,
-        y: y + 100,
-        isPlaceholder: true,
-        position: TreeNodePosition.right,
-      ));
+      positions.addAll(
+        _buildNodePositions(node.right!, x + gapX, y + 100, level + 1, gapBase),
+      );
+    } else if (level < 5) {
+      positions.add(
+        NodePosition(
+          parent: node,
+          x: x + gapX,
+          y: y + 100,
+          isPlaceholder: true,
+          position: TreeNodePosition.right,
+        ),
+      );
     }
 
     return positions;
   }
+
+  bool isActiveNode(TreeNode node) {
+    if (_activeNodeIndex < 0 || _activeNodeIndex >= _animationNodes.length)
+      return false;
+    return _animationNodes[_activeNodeIndex].value == node.value;
+  }
+
+  void _startAnimation(List<TreeNode> nodes) {
+    _animationTimer?.cancel();
+    if (nodes.isEmpty) return;
+
+    _animationNodes = nodes;
+    _activeNodeIndex = 0;
+    _historyNodes = [nodes[0]]; // começa o histórico com o primeiro nó
+    _isAnimating = true;
+
+    _animationTimer = Timer.periodic(Duration(seconds: 1), (timer) {
+      setState(() {
+        if (_activeNodeIndex < _animationNodes.length - 1) {
+          _activeNodeIndex++;
+          _historyNodes.add(
+            _animationNodes[_activeNodeIndex],
+          ); // adiciona o nó atual no histórico
+        } else {
+          timer.cancel();
+          _activeNodeIndex = -1;
+          _isAnimating = false;
+        }
+      });
+    });
+
+    setState(() {});
+  }
+
+  void _stopAnimation() {
+    _animationTimer?.cancel();
+    _activeNodeIndex = -1;
+    _isAnimating = false;
+    _historyNodes.clear(); // limpa histórico ao parar
+    setState(() {});
+  }
+
+  List<TreeNode> _historyNodes = [];
+  bool _isAnimating = false;
+  bool _isOperationsExpanded = false;
 
   @override
   Widget build(BuildContext context) {
@@ -166,44 +230,128 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
 
     if (tree.items.isNotEmpty) {
       maxDepth = _getTreeDepth(tree.items.first);
-    }
-
-    if (tree.items.isNotEmpty) {
       nodes.addAll(_buildNodePositions(tree.items.first, 1000, 40, 1, 30));
     }
 
     return Scaffold(
       backgroundColor: Colors.white,
-      floatingActionButton: FloatingActionButton(
-        tooltip: 'Preencher Árvore Automaticamente',
-        backgroundColor: Colors.black,
-        child: Icon(Icons.auto_graph, color: Colors.white),
-        onPressed: () {
-          setState(() {
-            _autoValueCounter = 1;
+      floatingActionButton: Column(
+        mainAxisSize: MainAxisSize.min,
+        mainAxisAlignment: MainAxisAlignment.end,
+        children: [
+          if (_isAnimating) ...[
+            FloatingActionButton(
+              heroTag: 'stop_animation',
+              tooltip: 'Parar Animação',
+              backgroundColor: Colors.red,
+              onPressed: _stopAnimation,
+              child: Icon(Icons.stop, color: Colors.white),
+            ),
+            SizedBox(height: 10),
+          ] else if (tree.items.isNotEmpty) ...[
+            AnimatedSize(
+              duration: Duration(milliseconds: 300),
+              child: _isOperationsExpanded
+                  ? Column(
+                      mainAxisSize: MainAxisSize.min,
+                      children: [
+                        SizedBox(height: 10),
+                        FloatingActionButton(
+                          heroTag: 'preorder',
+                          tooltip: 'Pré-ordem',
+                          backgroundColor: Colors.deepPurple,
+                          onPressed: () {
+                            setState(() {
+                              _isOperationsExpanded = false;
+                              _startAnimation(tree.traversePreOrderList());
+                            });
+                          },
+                          child: Text(
+                            'Pré',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        FloatingActionButton(
+                          heroTag: 'inorder',
+                          tooltip: 'Em ordem',
+                          backgroundColor: Colors.green,
+                          onPressed: () {
+                            setState(() {
+                              _isOperationsExpanded = false;
+                              _startAnimation(tree.traverseInOrderList());
+                            });
+                          },
+                          child: Text(
+                            'Em',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                        SizedBox(height: 10),
+                        FloatingActionButton(
+                          heroTag: 'postorder',
+                          tooltip: 'Pós-ordem',
+                          backgroundColor: Colors.orange,
+                          onPressed: () {
+                            setState(() {
+                              _isOperationsExpanded = false;
+                              _startAnimation(tree.traversePostOrderList());
+                            });
+                          },
+                          child: Text(
+                            'Pós',
+                            style: TextStyle(color: Colors.white),
+                          ),
+                        ),
+                      ],
+                    )
+                  : SizedBox.shrink(),
+            ),
+            SizedBox(height: 10),
+            FloatingActionButton(
+              tooltip: 'Operações',
+              backgroundColor: Colors.black,
+              onPressed: () {
+                setState(() {
+                  _isOperationsExpanded = !_isOperationsExpanded;
+                });
+              },
+              child: Icon(Icons.play_arrow_rounded, color: Colors.white),
+            ),
+            SizedBox(height: 10),
+          ],
 
-            // Cria raiz se necessário
-            if (tree.root == null) {
-              tree.addRoot(_autoValueCounter++);
-            }
-
-            // Preenche a árvore
-            _fillTreeAutomatically(tree.root!, 1, 5);
-          });
-        },
+          FloatingActionButton(
+            tooltip: 'Preencher Árvore Automaticamente',
+            backgroundColor: Colors.black,
+            child: Icon(Icons.auto_graph, color: Colors.white),
+            onPressed: () {
+              setState(() {
+                _autoValueCounter = 1;
+                if (tree.root == null) {
+                  tree.addRoot(_autoValueCounter++);
+                }
+                _fillTreeAutomatically(tree.root!, 1, 5);
+                _stopAnimation();
+              });
+            },
+          ),
+        ],
       ),
       body: InteractiveViewer(
-        constrained: false, // Permite que o conteúdo ultrapasse os limites
-        boundaryMargin: const EdgeInsets.all(2000), // Espaço livre para mover
+        constrained: false,
+        boundaryMargin: const EdgeInsets.all(2000),
         minScale: 0.2,
         maxScale: 2.5,
         child: SizedBox(
-          width: 2000, // Área grande para a árvore
+          width: 2000,
           height: 2000,
           child: Stack(
             children: [
               CustomPaint(
-                painter: TreePainter(nodes.where((n) => !n.isPlaceholder).toList()),
+                painter: TreePainter(
+                  nodes.where((n) => !n.isPlaceholder).toList(),
+                ),
                 child: Container(),
               ),
               ...nodes.map((node) {
@@ -212,16 +360,21 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
                   top: node.y - 20,
                   child: node.isPlaceholder
                       ? IconButton(
-                          onPressed: () => _addNode(parent: node.parent, position: node.position!),
+                          onPressed: () => _addNode(
+                            parent: node.parent,
+                            position: node.position!,
+                          ),
                           icon: Icon(Icons.add_circle, color: Colors.black),
                         )
                       : GestureDetector(
                           onLongPress: () => _confirmAndDeleteNode(node.node!),
-                          child: TreeNodeWidget(value: node.node!.value),
+                          child: TreeNodeWidget(
+                            value: node.node!.value,
+                            isActive: isActiveNode(node.node!),
+                          ),
                         ),
                 );
               }),
-      
               if (tree.items.isEmpty)
                 Center(
                   child: SizedBox(
@@ -230,7 +383,10 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
                     child: PrimaryButton(
                       backgroundColor: Colors.black,
                       textColor: Colors.white,
-                      onPressed: () => _addNode(parent: null, position: TreeNodePosition.left),
+                      onPressed: () => _addNode(
+                        parent: null,
+                        position: TreeNodePosition.left,
+                      ),
                       label: '+ Adicionar nó raiz',
                     ),
                   ),
@@ -239,15 +395,57 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
           ),
         ),
       ),
+      bottomNavigationBar: _historyNodes.isNotEmpty
+          ? Container(
+              color: Colors.grey[200],
+              height: 80,
+              padding: EdgeInsets.symmetric(vertical: 8, horizontal: 12),
+              child: ListView.separated(
+                scrollDirection: Axis.horizontal,
+                itemCount: _historyNodes.length,
+                separatorBuilder: (_, __) => Container(margin: EdgeInsets.symmetric(horizontal: 4), child: Icon(Icons.arrow_right_alt_rounded)),
+                itemBuilder: (_, index) {
+                  final node = _historyNodes[index];
+                  final isActive = index == _historyNodes.length - 1;
+                  return Container(
+                    width: 28,
+                    decoration: BoxDecoration(
+                      color: isActive ? Colors.redAccent : Colors.black,
+                      shape: BoxShape.circle,
+                      border: Border.all(color: Colors.white),
+                      boxShadow: isActive
+                          ? [
+                              BoxShadow(
+                                color: Colors.redAccent.withOpacity(0.7),
+                                blurRadius: 6,
+                                spreadRadius: 1,
+                              ),
+                            ]
+                          : null,
+                    ),
+                    alignment: Alignment.center,
+                    child: Text(
+                      '${node.value}',
+                      style: TextStyle(
+                        color: Colors.white,
+                        fontWeight: FontWeight.bold,
+                        fontSize: 16,
+                      ),
+                    ),
+                  );
+                },
+              ),
+            )
+          : null,
     );
-
   }
 }
 
 class TreeNodeWidget extends StatelessWidget {
   final int value;
+  final bool isActive;
 
-  const TreeNodeWidget({super.key, required this.value});
+  const TreeNodeWidget({super.key, required this.value, this.isActive = false});
 
   @override
   Widget build(BuildContext context) {
@@ -256,9 +454,18 @@ class TreeNodeWidget extends StatelessWidget {
       height: 40,
       alignment: Alignment.center,
       decoration: BoxDecoration(
-        color: Colors.black,
+        color: isActive ? Colors.redAccent : Colors.black,
         shape: BoxShape.circle,
         border: Border.all(color: Colors.white),
+        boxShadow: isActive
+            ? [
+                BoxShadow(
+                  color: Colors.redAccent.withOpacity(0.7),
+                  blurRadius: 10,
+                  spreadRadius: 2,
+                ),
+              ]
+            : null,
       ),
       child: Text(
         '$value',
@@ -286,7 +493,11 @@ class TreePainter extends CustomPainter {
       }
       if (node.node?.right != null) {
         final right = nodes.firstWhere((n) => n.node == node.node!.right);
-        canvas.drawLine(Offset(node.x, node.y), Offset(right.x, right.y), paint);
+        canvas.drawLine(
+          Offset(node.x, node.y),
+          Offset(right.x, right.y),
+          paint,
+        );
       }
     }
   }

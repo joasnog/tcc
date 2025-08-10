@@ -34,7 +34,6 @@ class _QueueStructureWidgetState extends State<QueueStructureWidget> {
           mainAxisAlignment: MainAxisAlignment.center,
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            // Lado esquerdo fixo
             SizedBox(
               width: 400,
               child: Padding(
@@ -110,58 +109,53 @@ class _QueueStructureWidgetState extends State<QueueStructureWidget> {
               ),
             ),
 
-            SizedBox(width: 64),
-        
-            // Lado direito: fila visual
+            const SizedBox(width: 64),
+
             Align(
               alignment: Alignment.topCenter,
-              child: SizedBox(
+              child: Container(
                 width: 600,
                 height: 70,
-                child: Container(
-                  padding: const EdgeInsets.all(8),
-                  decoration: BoxDecoration(
-                    border: Border.all(color: Colors.blueGrey, width: 2),
-                    borderRadius: BorderRadius.circular(8),
-                    color: Colors.white,
-                  ),
-                  child: SingleChildScrollView(
-                    scrollDirection: Axis.horizontal,
-                    child: Row(
-                      mainAxisAlignment: MainAxisAlignment.start,
-                      children: dataStructure.items.isEmpty
-                          ? [
-                              const Text(
-                                'Fila vazia',
-                                style: TextStyle(color: Colors.grey),
-                              )
-                            ]
-                          : dataStructure.items
-                              .map(
-                                (e) => Container(
-                                  margin: const EdgeInsets.symmetric(horizontal: 4),
-                                  padding: const EdgeInsets.all(12),
-                                  decoration: BoxDecoration(
-                                    color: Colors.grey.shade200,
-                                    border: Border.all(color: Colors.black),
-                                  ),
-                                  child: Text(
-                                    e.toString(),
-                                    textAlign: TextAlign.center,
-                                    style: const TextStyle(
-                                      color: Colors.black,
-                                      fontWeight: FontWeight.w500,
-                                    ),
+                padding: const EdgeInsets.all(8),
+                decoration: BoxDecoration(
+                  border: Border.all(color: Colors.blueGrey, width: 2),
+                  borderRadius: BorderRadius.circular(8),
+                  color: Colors.white,
+                ),
+                child: SingleChildScrollView(
+                  scrollDirection: Axis.horizontal,
+                  child: Row(
+                    children: dataStructure.items.isEmpty
+                        ? [
+                            const Text(
+                              'Fila vazia',
+                              style: TextStyle(color: Colors.grey),
+                            )
+                          ]
+                        : dataStructure.items
+                            .map(
+                              (e) => Container(
+                                margin: const EdgeInsets.symmetric(horizontal: 4),
+                                padding: const EdgeInsets.all(12),
+                                decoration: BoxDecoration(
+                                  color: Colors.grey.shade200,
+                                  border: Border.all(color: Colors.black),
+                                ),
+                                child: Text(
+                                  e.toString(),
+                                  textAlign: TextAlign.center,
+                                  style: const TextStyle(
+                                    color: Colors.black,
+                                    fontWeight: FontWeight.w500,
                                   ),
                                 ),
-                              )
-                              .toList(),
-                    ),
+                              ),
+                            )
+                            .toList(),
                   ),
                 ),
               ),
             ),
-        
           ],
         ),
       ),
