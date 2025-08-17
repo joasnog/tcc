@@ -44,6 +44,7 @@ class MyApp extends StatelessWidget {
 
     return MaterialApp.router(
       routerConfig: router,
+      debugShowCheckedModeBanner: false,
       title: 'Estruturas de Dados',
       theme: ThemeData(
         fontFamily: 'Inter',

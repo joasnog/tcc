@@ -1,6 +1,7 @@
 import 'dart:async';
+import 'package:awesome_side_sheet/Enums/sheet_position.dart';
+import 'package:awesome_side_sheet/side_sheet.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_expandable_fab/flutter_expandable_fab.dart';
 import '../../../data_estructures/binary_tree.dart';
 import '../../../data_estructures/data_structure.dart';
 import '../../../models/node_position_model.dart';
@@ -52,10 +53,12 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
       node.right = newNode;
     }
 
-    if (node.left != null)
+    if (node.left != null) {
       _fillTreeAutomatically(node.left!, currentDepth + 1, maxDepth);
-    if (node.right != null)
+    }
+    if (node.right != null) {
       _fillTreeAutomatically(node.right!, currentDepth + 1, maxDepth);
+    }
   }
 
   Future<void> _confirmAndDeleteNode(TreeNode node) async {
@@ -180,8 +183,10 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
   }
 
   bool isActiveNode(TreeNode node) {
-    if (_activeNodeIndex < 0 || _activeNodeIndex >= _animationNodes.length)
+    if (_activeNodeIndex < 0 || _activeNodeIndex >= _animationNodes.length) {
       return false;
+    }
+
     return _animationNodes[_activeNodeIndex].value == node.value;
   }
 
@@ -239,6 +244,96 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
         mainAxisSize: MainAxisSize.min,
         mainAxisAlignment: MainAxisAlignment.end,
         children: [
+          FloatingActionButton(
+            backgroundColor: Colors.black,
+            tooltip: 'Explicação',
+            onPressed: () {
+              aweSideSheet(
+                context: context,
+                sheetPosition: SheetPosition.right,
+                backgroundColor: Colors.white,
+                showBackButton: false,
+                showActions: false,
+                showHeaderDivider: false,
+                title: '',
+                borderRadius: 16,
+                footer: const SizedBox(),
+                body: SingleChildScrollView(
+                  padding: const EdgeInsets.all(16),
+                  child: const Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      SelectableText(
+                        "Árvore (Tree)",
+                        style: TextStyle(
+                          fontSize: 20,
+                          fontWeight: FontWeight.bold,
+                        ),
+                      ),
+                      SizedBox(height: 12),
+                      SelectableText(
+                        "Árvore é uma estrutura de dados que organiza as informações "
+                        "de forma hierárquica, permitindo consultas rápidas e eficientes. "
+                        "Ela reduz bastante a quantidade de comparações necessárias para "
+                        "encontrar um valor.\n",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      SelectableText(
+                        "Um exemplo comum é a árvore de diretórios em um computador, "
+                        "onde pastas (nós) podem conter outras pastas ou arquivos, "
+                        "formando um diagrama hierarquizado.\n\n"
+                        "Esse tipo de estrutura é muito usada em bancos de dados, "
+                        "redes de computadores, linguística, mapas digitais, "
+                        "sistemas de decisão e muitas outras áreas.",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(height: 12),
+                      SelectableText(
+                        "Componentes principais:\n"
+                        "• Raiz: o nó inicial da árvore (onde tudo começa);\n"
+                        "• Nós internos: podem ter filhos (outros nós ligados a ele);\n"
+                        "• Folhas: nós sem filhos (grau zero);\n"
+                        "• Grau de um nó: quantidade de filhos que ele possui;\n"
+                        "• Grau da árvore: o maior grau entre todos os nós.\n",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(height: 12),
+                      SelectableText(
+                        "Árvore Binária:\n"
+                        "É a forma mais comum de árvore, onde cada nó pode ter "
+                        "no máximo dois filhos: um à esquerda e um à direita. "
+                        "Isso facilita a organização e a busca dos dados.\n",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      SizedBox(height: 12),
+                      SelectableText(
+                        "Formas de percorrer os nós de uma árvore:\n"
+                        "• In-order: visita nó da esquerda → raiz → direita. "
+                        "Usado para acessar os dados de forma ordenada;\n"
+                        "• Pre-order: visita raiz → esquerda → direita. "
+                        "Revela a estrutura/topologia da árvore;\n"
+                        "• Post-order: visita esquerda → direita → raiz. "
+                        "Percorre dos filhos em direção à raiz.\n",
+                        style: TextStyle(fontSize: 16),
+                      ),
+                      Divider(),
+                      SelectableText(
+                        "Referência: Instituto Federal de Santa Catarina - PRG29003: Introdução a árvores binárias\n"
+                        "Disponível em: https://wiki.sj.ifsc.edu.br/index.php/PRG29003:_Introdu%C3%A7%C3%A3o_a_%C3%A1rvores_bin%C3%A1rias",
+                        style: TextStyle(
+                          fontSize: 14,
+                          fontStyle: FontStyle.italic,
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              );
+            },
+            child: const Icon(Icons.info, color: Colors.white),
+          ),
+          SizedBox(height: 10),
+
           if (_isAnimating) ...[
             FloatingActionButton(
               heroTag: 'stop_animation',
@@ -247,7 +342,7 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
               onPressed: _stopAnimation,
               child: Icon(Icons.stop, color: Colors.white),
             ),
-            SizedBox(height: 10),
+            // SizedBox(height: 10),
           ] else if (tree.items.isNotEmpty) ...[
             AnimatedSize(
               duration: Duration(milliseconds: 300),
@@ -307,7 +402,8 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
                     )
                   : SizedBox.shrink(),
             ),
-            SizedBox(height: 10),
+
+            // SizedBox(height: 10),
             FloatingActionButton(
               tooltip: 'Operações',
               backgroundColor: Colors.black,
@@ -366,8 +462,8 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
                           ),
                           icon: Icon(Icons.add_circle, color: Colors.black),
                         )
-                      : GestureDetector(
-                          onLongPress: () => _confirmAndDeleteNode(node.node!),
+                      : InkWell(
+                          onTap: () => _confirmAndDeleteNode(node.node!),
                           child: TreeNodeWidget(
                             value: node.node!.value,
                             isActive: isActiveNode(node.node!),
@@ -403,7 +499,10 @@ class _BinaryTreeStructureWidgetState extends State<BinaryTreeStructureWidget> {
               child: ListView.separated(
                 scrollDirection: Axis.horizontal,
                 itemCount: _historyNodes.length,
-                separatorBuilder: (_, __) => Container(margin: EdgeInsets.symmetric(horizontal: 4), child: Icon(Icons.arrow_right_alt_rounded)),
+                separatorBuilder: (_, __) => Container(
+                  margin: EdgeInsets.symmetric(horizontal: 4),
+                  child: Icon(Icons.arrow_right_alt_rounded),
+                ),
                 itemBuilder: (_, index) {
                   final node = _historyNodes[index];
                   final isActive = index == _historyNodes.length - 1;
