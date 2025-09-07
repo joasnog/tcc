@@ -208,9 +208,60 @@ class _StackStructureWidgetState extends State<StackStructureWidget> {
           title: '',
           borderRadius: 16,
           footer: const SizedBox(),
-          body: const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text("Explicação aqui..."),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                  "Pilha (Stack)",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+                SelectableText(
+                  "Pilha é uma estrutura de dados linear que segue o princípio "
+                  "LIFO (Last In, First Out), ou seja, o último elemento a entrar "
+                  "é o primeiro a sair. É comparável a uma pilha de pratos: "
+                  "o último colocado em cima é o primeiro a ser retirado.\n",
+                  style: TextStyle(fontSize: 16),
+                ),
+                SelectableText(
+                  "Operações principais:\n"
+                  "• Push: insere um elemento no topo da pilha;\n"
+                  "• Pop: remove o elemento do topo da pilha;\n"
+                  "• Peek/Top: consulta o elemento no topo sem removê-lo;\n"
+                  "• IsEmpty/Size: verifica se está vazia ou obtém a quantidade de elementos.\n",
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 12),
+                SelectableText(
+                  "Implementações comuns:\n"
+                  "• Vetor/Array: elementos são empilhados em índices sequenciais;\n"
+                  "• Lista encadeada: permite expansão dinâmica, sem limite fixo de tamanho.\n",
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 12),
+                SelectableText(
+                  "Aplicações práticas:\n"
+                  "• Controle de chamadas de funções (pilha de execução);\n"
+                  "• Desfazer/refazer ações em editores de texto e gráficos;\n"
+                  "• Conversão de expressões matemáticas e avaliação (notação pós-fixa);\n"
+                  "• Navegação em navegadores (histórico de páginas).\n",
+                  style: TextStyle(fontSize: 16),
+                ),
+                Divider(),
+                SelectableText(
+                  "Referências:\n"
+                  "- COS-121 (UFRJ): Pilhas como estruturas LIFO, com operações push, pop e top, "
+                  "implementadas por vetor ou lista encadeada. Disponível em: "
+                  "https://www.cos.ufrj.br/~rfarias/cos121/pilhas.html\n"
+                  "- Medium (Pedro Aquino, 22 abr. 2025): explicação prática de pilhas, "
+                  "operações básicas e aplicações como chamadas de funções e histórico de navegação. "
+                  "Disponível em: https://medium.com/@pedro.vaf/pilha-estrutura-din%C3%A2mica-2347da4f8c3e\n",
+                  style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
           ),
         );
       },

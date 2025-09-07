@@ -197,9 +197,56 @@ class _QueueStructureWidgetState extends State<QueueStructureWidget> {
           title: '',
           borderRadius: 16,
           footer: const SizedBox(),
-          body: const Padding(
-            padding: EdgeInsets.all(16),
-            child: Text("Explicação sobre fila aqui..."),
+          body: SingleChildScrollView(
+            padding: const EdgeInsets.all(16),
+            child: const Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SelectableText(
+                  "Fila (Queue)",
+                  style: TextStyle(fontSize: 20, fontWeight: FontWeight.bold),
+                ),
+                SizedBox(height: 12),
+                SelectableText(
+                  "Fila é uma estrutura de dados linear que segue o princípio FIFO “First-In, First-Out”, "
+                  "ou seja, o primeiro elemento que entra é o primeiro que sai. É semelhante a uma fila de pessoas "
+                  "aguardando atendimento.\n",
+                  style: TextStyle(fontSize: 16),
+                ),
+                SelectableText(
+                  "Operações principais:\n"
+                  "• Enqueue: adiciona um elemento ao final da fila;\n"
+                  "• Dequeue: remove o elemento do início da fila;\n"
+                  "• Peek/Front: consulta o primeiro elemento sem removê-lo;\n"
+                  "• IsEmpty/Size: verifica se está vazia ou obtém o tamanho.\n",
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 12),
+                SelectableText(
+                  "Implementações comuns:\n"
+                  "• Lista encadeada: eficiente para inserções e remoções em O(1), "
+                  "mantendo ponteiros para início e fim;\n"
+                  "• Vetor circular: utiliza um array e reaproveita espaço, útil em implementações com tamanho fixo.\n",
+                  style: TextStyle(fontSize: 16),
+                ),
+                SizedBox(height: 12),
+                SelectableText(
+                  "Aplicações práticas:\n"
+                  "• Processamento de tarefas (como impressão ou mensagens);\n"
+                  "• Gerenciamento de processos em sistemas operacionais (escalonamento FIFO);\n"
+                  "• Algoritmos de busca em largura (BFS) em grafos;\n"
+                  "• Filas de mensagens em sistemas distribuídos.\n",
+                  style: TextStyle(fontSize: 16),
+                ),
+                Divider(),
+                SelectableText(
+                  "Referências:\n"
+                  "- COS-121 (UFRJ): Filas definidas como estruturas FIFO com operações enqueue, dequeue, isEmpty, isFull e implementação por vetor circular ou lista encadeada. Disponível em: https://www.cos.ufrj.br/~rfarias/cos121/filas.html\n"
+                  "- Aprenda Golang (Medium, Pedro Aquino, 26 maio 2025): explicação atualizada sobre fila (queue), operações básicas e exemplos de uso em gerenciamento de processos, impressão, buffers de rede, mensageria e BFS. Disponível em: https://medium.com/@pedro.vaf/fila-estrutura-din%C3%A2mica-ea280f4f1e9f\n",
+                  style: TextStyle(fontSize: 14, fontStyle: FontStyle.italic),
+                ),
+              ],
+            ),
           ),
         );
       },
